@@ -1,0 +1,17 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
+
+# Generated and binary
+/build
+/.svelte-kit
+/static/
+/docs/images/
+test-results
+playwright-report
+
+# Volunteers edit content in GitHub's web editor; formatting shouldn't block their pull requests.
+/content/
