@@ -158,7 +158,7 @@ jobs:
           docker run -p 3000:3000 -v tendwell-data:/data -e ORIGIN=http://localhost:3000 ghcr.io/${GITHUB_REPOSITORY,,}:$VERSION
           \`\`\`
 
-          Or download \`tendwell-$TAG.tar.gz\`, then run \`npm ci --omit=dev && node build\` inside it (Node.js 22.17 or newer).
+          Or download \`tendwell-$TAG.tar.gz\`, then run \`npm ci --omit=dev --ignore-scripts && node build\` inside it (Node.js 22.17 or newer).
 
           Build #${{ github.run_number }} · commit ${{ needs.prepare.outputs.sha }}
           NOTES
