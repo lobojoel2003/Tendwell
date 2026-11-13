@@ -1,0 +1,33 @@
+name: Something isn't working
+description: A page breaks, a button does nothing, or something behaves unexpectedly.
+title: '[Bug] '
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Please don't include anyone's personal details.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we see it happen?
+      placeholder: |
+        1. Go to …
+        2. Press …
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: iPhone 15, Safari
+  - type: input
+    id: version
+    attributes:
+      label: Tendwell version
+      description: Shown at the bottom of every page, like "v1.0.0 (build 12)".

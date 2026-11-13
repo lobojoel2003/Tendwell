@@ -1,0 +1,22 @@
+# A simple way to run Tendwell on your own server.
+#   docker compose up -d
+# Then put it behind HTTPS (for example with Caddy or nginx) and set ORIGIN to the public address.
+services:
+  tendwell:
+    image: ghcr.io/lobojoel2003/tendwell:latest
+    # To build from source instead: comment out "image" and uncomment "build".
+    # build: .
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      ORIGIN: ${ORIGIN:-http://localhost:3000}
+      # If a proxy in front terminates HTTPS, tell Tendwell which headers to trust:
+      # PROTOCOL_HEADER: x-forwarded-proto
+      # HOST_HEADER: x-forwarded-host
+      # ADDRESS_HEADER: x-forwarded-for
+    volumes:
+      - tendwell-data:/data
+
+volumes:
+  tendwell-data:

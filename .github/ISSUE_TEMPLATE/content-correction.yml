@@ -1,0 +1,33 @@
+name: Something in a guide is wrong or unclear
+description: A step, guide or letter is out of date, inaccurate, confusing or unkind.
+title: '[Content] '
+labels: [content]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. You don't need to know anything about code to help here. Plain words are perfect.
+  - type: input
+    id: page
+    attributes:
+      label: Which page?
+      description: Paste the link, or the title of the step, guide or letter.
+      placeholder: https://…/guides/death-certificates
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong or unclear?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What should it say instead?
+      description: Optional. A source (like a government page) helps us check it quickly.
+  - type: input
+    id: region
+    attributes:
+      label: Does this depend on where you live?
+      placeholder: For example, "only in Texas"

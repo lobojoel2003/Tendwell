@@ -1,0 +1,26 @@
+name: Add guidance for another country or state
+description: Help Tendwell cover where you live.
+title: '[Region] '
+labels: [content, region]
+body:
+  - type: input
+    id: region
+    attributes:
+      label: Which country or state?
+    validations:
+      required: true
+  - type: textarea
+    id: differences
+    attributes:
+      label: What is different there?
+      description: Official services, deadlines, the names of documents, who to tell. Links to official pages help.
+    validations:
+      required: true
+  - type: dropdown
+    id: help
+    attributes:
+      label: Could you help write or review it?
+      options:
+        - Yes, I'd like to write some of it
+        - I could review it
+        - Not right now

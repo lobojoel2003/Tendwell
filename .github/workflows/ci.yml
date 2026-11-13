@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Releases call this workflow too, so keep their runs separate from branch runs.
+  group: ci-${{ github.workflow_ref }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  FORCE_COLOR: '1'
+
+jobs:
+  quality:
+    name: Lint, types and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # better-sqlite3 ships prebuilt binaries, so no install scripts are needed.
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Generate SvelteKit types
+        run: npx svelte-kit sync
+
+      - name: Check formatting and lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run check
+
+      - name: Validate guides, checklist and letters
+        run: npm run content:check
+
+      - name: Unit tests
+        run: npx vitest --run --project unit
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  e2e:
+    name: End-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # better-sqlite3 ships prebuilt binaries, so no install scripts are needed.
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Generate SvelteKit types
+        run: npx svelte-kit sync
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+
+      - name: Run Playwright
+        run: npx playwright test
+        env:
+          E2E_SKIP_BUILD: '1'
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: quality
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # better-sqlite3 ships prebuilt binaries, so no install scripts are needed.
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Generate SvelteKit types
+        run: npx svelte-kit sync
+
+      - name: Build
+        run: npm run build
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+
+      - name: Smoke test the built server
+        run: |
+          DATABASE_PATH="$RUNNER_TEMP/smoke.db" PORT=3000 ORIGIN=http://localhost:3000 node build &
+          server=$!
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:3000/healthz && break
+            sleep 1
+          done
+          echo
+          curl -fsS http://localhost:3000/healthz | grep -q '"build":"${{ github.run_number }}"'
+          curl -fsS -o /dev/null http://localhost:3000/
+          curl -fsS -o /dev/null http://localhost:3000/checklist
+          kill "$server"
+
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: tendwell-build-${{ github.run_number }}
+          path: build
+          retention-days: 7
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: quality
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: tendwell:ci
+          build-args: |
+            BUILD_NUMBER=${{ github.run_number }}
+            GIT_COMMIT=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run the image and check its health
+        run: |
+          docker run -d --name tendwell -p 3000:3000 -e ORIGIN=http://localhost:3000 tendwell:ci
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:3000/healthz && break
+            sleep 1
+          done
+          echo
+          curl -fsS http://localhost:3000/healthz | grep -q '"status":"ok"'
+          docker exec tendwell node -e "require('better-sqlite3')"
+          docker logs tendwell
