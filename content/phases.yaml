@@ -1,0 +1,25 @@
+# The plan moves through these stages, gently. Order matters; ids are used by tasks.
+- id: first-days
+  title: The first few days
+  short: First days
+  order: 1
+  description: >-
+    Only a handful of things truly can't wait. Everything else can sit until you are ready.
+- id: first-weeks
+  title: The first few weeks
+  short: First weeks
+  order: 2
+  description: >-
+    Letting the important people and places know, and gathering the papers you will need.
+- id: first-months
+  title: The first few months
+  short: First months
+  order: 3
+  description: >-
+    Claiming what is owed, closing what is no longer needed, and starting on the estate.
+- id: later
+  title: When you're ready
+  short: Later on
+  order: 4
+  description: >-
+    Things that can wait a season or more. Come back to these whenever it feels right.

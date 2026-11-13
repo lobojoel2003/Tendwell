@@ -1,0 +1,26 @@
+# Optional questions that tailor the plan. Answers are "yes", "no" or "unsure".
+# A step with `applies_if: { married: yes }` is hidden only when someone answers "no".
+# If they answer "unsure" or skip the question, the step stays in the plan.
+- id: married
+  question: Were they married?
+  help: Spouses can often claim benefits and may need to update joint accounts.
+- id: dependents
+  question: Did they have children under 18, or anyone who relied on them for care?
+- id: working
+  question: Were they working when they died?
+  help: Employers often owe a final paycheck and may provide life insurance.
+- id: benefits
+  question: Were they receiving Social Security, a pension or other government benefits?
+- id: veteran
+  question: Did they serve in the military?
+- id: homeowner
+  question: Did they own a home?
+- id: renting
+  question: Were they renting a home?
+- id: vehicle
+  question: Did they own a car or other vehicle?
+- id: pets
+  question: Did they have pets?
+- id: will
+  question: Did they leave a will?
+  help: If you aren't sure, that's alright. One of the steps helps you look.

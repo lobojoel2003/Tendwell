@@ -1,0 +1,5 @@
+# Places Tendwell has guidance for. Steps marked `regions: [all]` apply everywhere.
+# Want to add your country? See content/README.md.
+- id: us
+  name: United States
+  description: Federal programs plus the steps most states share. Rules and fees vary by state.
