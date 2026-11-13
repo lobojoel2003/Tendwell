@@ -193,6 +193,11 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.sha }}
 
+      - name: Image name
+        id: image
+        # Registry names must be lowercase, and the repository is "Tendwell".
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
       - uses: docker/setup-qemu-action@v4
 
       - uses: docker/setup-buildx-action@v4
@@ -207,7 +212,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ steps.image.outputs.name }}
           tags: |
             type=semver,pattern={{version}},value=${{ needs.prepare.outputs.tag }}
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.prepare.outputs.tag }}
@@ -241,6 +246,6 @@ jobs:
       - name: Attest image provenance
         uses: actions/attest-build-provenance@v4
         with:
-          subject-name: ghcr.io/${{ github.repository }}
+          subject-name: ${{ steps.image.outputs.name }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
