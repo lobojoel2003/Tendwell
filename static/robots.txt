@@ -1,0 +1,7 @@
+# Guides, the checklist and letters are public. Plans are private.
+User-agent: *
+Disallow: /plans
+Disallow: /invite
+Disallow: /account
+Disallow: /login
+Disallow: /signup
